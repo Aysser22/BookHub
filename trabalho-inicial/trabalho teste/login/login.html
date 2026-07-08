@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHub - Entrar</title>
+    <link rel="stylesheet" href="./login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-book-open"></i> <span>BookHub</span>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="../pagina-inicial/inicial.html">Catálogo</a></li>
+                <li><a href="../perfil/perfil.html">Meu Perfil</a></li>
+                <li><a href="../parte-de-administrador/admin.html">Painel Admin</a></li>
+                <li><a href="./login.html" class="btn-login active">Entrar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="auth-card">
+            <h1>Entrar no BookHub</h1>
+            <p>Use sua conta para acessar o acervo, seu perfil e a área administrativa.</p>
+            <form class="auth-form">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="seu@email.com" required>
+
+                <label for="password">Senha</label>
+                <input type="password" id="password" placeholder="Digite sua senha" required>
+
+                <div id="camposCadastro" class="campos-cadastro hidden">
+                    <label for="nomeSocial">Como você quer ser chamado?</label>
+                    <input type="text" id="nomeSocial" placeholder="Ex: João, Maria, Lili" required>
+
+                    <label for="anoEscolar">Ano do ensino médio</label>
+                    <select id="anoEscolar" required>
+                        <option value="">Selecione o ano</option>
+                        <option value="1º Ano">1º Ano</option>
+                        <option value="2º Ano">2º Ano</option>
+                        <option value="3º Ano">3º Ano</option>
+                    </select>
+
+                    <label for="turma">Turma</label>
+                    <input type="text" id="turma" placeholder="Ex: A, B, C" required>
+                </div>
+
+                <button type="submit" data-modo="login">Entrar</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 BookHub - Gestão de Biblioteca Escolar Inteligente.</p>
+    </footer>
+
+    <script src="./login.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHub - Gerenciar Reservas</title>
+    <link rel="stylesheet" href="./reservas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-book-open"></i> <span>BookHub</span>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="../pagina-inicial/inicial.html">Catálogo</a></li>
+                <li><a href="../perfil/perfil.html">Meu Perfil</a></li>
+                <li><a href="./admin.html">Painel Admin</a></li>
+                <li><a href="../login/login.html" class="btn-login">Entrar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container-reservas">
+        <section class="admin-card reservas-card">
+            <div id="conteudoAdmin" class="conteudo-admin">
+                <div class="header-reservas">
+                    <h1>Gerenciar Reservas</h1>
+                    <a href="./admin.html" class="btn-voltar">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+
+                <div class="filtro-reservas">
+                    <select id="filtroStatus" class="filtro-select">
+                        <option value="">Todas as reservas</option>
+                        <option value="pendente">Pendentes</option>
+                        <option value="aceita">Aceitas</option>
+                        <option value="rejeitada">Rejeitadas</option>
+                    </select>
+                </div>
+
+                <div id="mensagemStatus" class="mensagem-status" aria-live="polite"></div>
+
+                <div class="lista-reservas">
+                    <h2>Reservas Pendentes</h2>
+                    <div id="listaReservas" class="reservas-container">
+                        <p class="carregando">Carregando reservas...</p>
+                    </div>
+                </div>
+
+                <div class="estatisticas-reservas">
+                    <div class="stat-item">
+                        <span class="stat-label">Pendentes:</span>
+                        <span id="totalPendentes" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Aceitas:</span>
+                        <span id="totalAceitas" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Rejeitadas:</span>
+                        <span id="totalRejeitadas" class="stat-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <script src="./reservas.js"></script>
+</body>
+</html>

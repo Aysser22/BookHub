@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookHub - Seu Acervo Digital</title>
+    <link rel="stylesheet" href="./inicial.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-book-open"></i> <span>BookHub</span>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="./inicial.html" class="active">Catálogo</a></li>
+                <li><a href="../perfil/perfil.html">Meu Perfil</a></li>
+                <li><a href="../parte-de-administrador/admin.html">Painel Admin</a></li>
+                <li><a href="../login/login.html" class="btn-login">Entrar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="search-section">
+            <h1>Descubra sua próxima leitura</h1>
+            <p>Explore o acervo completo da nossa biblioteca escolar.</p>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Busque por título, autor ou gênero...">
+                <button type="button" onclick="buscarLivro()"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+        </section>
+
+        <section class="catalog-section">
+            <h2>Livros Disponíveis</h2>
+            <div class="books-grid" id="booksGrid">
+                
+                
+
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p> &copy;  BookHub - Gestão de Biblioteca Escolar Inteligente.</p>
+    </footer>
+
+    <!-- Modal de Reserva -->
+    <div id="modalReserva" class="modal-reserva hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Fazer Reserva</h2>
+                <button type="button" class="btn-fechar" onclick="fecharModalReserva()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="livro-selecionado">Livro: <strong id="livroNome"></strong></p>
+                <form id="formReserva" class="form-reserva">
+                    <label>
+                        Seu Nome Completo:
+                        <input type="text" id="nomeAluno" placeholder="Ex: João Silva" required>
+                    </label>
+                    <label>
+                        Seu Email (opcional):
+                        <input type="email" id="emailAluno" placeholder="Ex: joao@escola.com">
+                    </label>
+                    <label>
+                        Turma/Série (opcional):
+                        <input type="text" id="turmaAluno" placeholder="Ex: 3º A">
+                    </label>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-cancelar" onclick="fecharModalReserva()">Cancelar</button>
+                        <button type="submit" class="btn-confirmar">Confirmar Reserva</button>
+                    </div>
+                </form>
+                <div id="mensagemReserva" class="mensagem-reserva"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./inicial.js"></script>
+</body>
+</html>

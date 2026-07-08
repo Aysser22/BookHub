@@ -1,0 +1,488 @@
+/* Configurações Gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #FDFBF7;
+    color: #3E2723;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #8B5A2B;
+    color: #FDFBF7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: #FDFBF7;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: #C19A6B;
+}
+
+.btn-login {
+    background-color: #C19A6B;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background 0.3s !important;
+}
+
+.btn-login:hover {
+    background-color: #A0784C;
+    color: #FFF !important;
+}
+
+/* Seção de Busca */
+.search-section {
+    text-align: center;
+    padding: 40px 20px;
+    background: #F5E6D3;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #E6D5C3;
+}
+
+.search-section h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #5C3A21;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 12px 20px;
+    border: 2px solid #C19A6B;
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+    font-size: 16px;
+}
+
+.search-bar button {
+    background-color: #8B5A2B;
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s;
+}
+
+.search-bar button:hover {
+    background-color: #5C3A21;
+}
+
+/* Grade de Livros (Cards) */
+.catalog-section h2 {
+    margin-bottom: 20px;
+    color: #5C3A21;
+    border-bottom: 2px solid #C19A6B;
+    padding-bottom: 5px;
+}
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
+}
+
+.book-card {
+    background: white;
+    border: 1px solid #E6D5C3;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(139, 90, 43, 0.2);
+}
+
+.book-cover, .book-cover-alt {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+}
+
+.book-cover { background-color: #8B5A2B; color: #FDFBF7; }
+.book-cover-alt { background-color: #C19A6B; color: #FDFBF7; }
+
+.book-info {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+
+.book-info h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #3E2723;
+}
+
+.book-info .author {
+    font-size: 14px;
+    color: #7A6354;
+    margin-bottom: 10px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    width: fit-content;
+}
+
+.badge.disponivel { background-color: #D4EDDA; color: #155724; }
+.badge.indisponivel { background-color: #F8D7DA; color: #721C24; }
+
+.btn-reserve {
+    background-color: #8B5A2B;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+.btn-reserve:hover:not(:disabled) {
+    background-color: #5C3A21;
+}
+
+.btn-reserve:disabled {
+    background-color: #CCC;
+    cursor: not-allowed;
+}
+
+/* Rodapé */
+footer {
+    background-color: #3E2723;
+    color: #FDFBF7;
+    text-align: center;
+    padding: 15px;
+    font-size: 14px;
+    margin-top: 40px;
+}
+
+.book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.book-synopsis {
+    font-size: 13px;
+    color: #7A6354;
+    margin: 8px 0 12px;
+    line-height: 1.4;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    padding: 20px;
+    text-align: center;
+    background: #FDFBF7;
+    border: 1px dashed #C19A6B;
+    border-radius: 8px;
+    color: #7A6354;
+}
+
+.toast-container {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 260px;
+    max-width: 340px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.hide {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.toast.sucesso {
+    background: linear-gradient(135deg, #2f855a, #38a169);
+}
+
+.toast.erro {
+    background: linear-gradient(135deg, #c53030, #e53e3e);
+}
+
+.toast.info {
+    background: linear-gradient(135deg, #805ad5, #6b46c1);
+}
+
+/* Modal de Reserva */
+.modal-reserva {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-reserva.hidden {
+    display: none;
+}
+
+.modal-reserva:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 450px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 2px solid #E6D5C3;
+    background: #F5E6D3;
+}
+
+.modal-header h2 {
+    color: #3E2723;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.btn-fechar {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #7A6354;
+    transition: color 0.2s;
+}
+
+.btn-fechar:hover {
+    color: #3E2723;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.livro-selecionado {
+    background: #F5E6D3;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    color: #3E2723;
+    font-size: 14px;
+}
+
+.form-reserva {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-reserva label {
+    display: flex;
+    flex-direction: column;
+    color: #3E2723;
+    font-weight: 500;
+    font-size: 14px;
+    gap: 5px;
+}
+
+.form-reserva input {
+    padding: 10px;
+    border: 2px solid #E6D5C3;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-reserva input:focus {
+    outline: none;
+    border-color: #8B5A2B;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    justify-content: flex-end;
+}
+
+.btn-cancelar {
+    padding: 10px 20px;
+    background: #E6D5C3;
+    color: #3E2723;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-cancelar:hover {
+    background: #D4C4B3;
+}
+
+.btn-confirmar {
+    padding: 10px 20px;
+    background: #8B5A2B;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-confirmar:hover {
+    background: #5C3A21;
+}
+
+.mensagem-reserva {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    display: none;
+    font-size: 14px;
+}
+
+.mensagem-reserva.sucesso {
+    display: block;
+    background: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+}
+
+.mensagem-reserva.erro {
+    display: block;
+    background: #F8D7DA;
+    color: #721C24;
+    border: 1px solid #F5C6CB;
+}
+
+@media (max-width: 600px) {
+    .modal-content {
+        max-width: 95%;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .btn-cancelar, .btn-confirmar {
+        width: 100%;
+    }
+}

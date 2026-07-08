@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Reservas BookHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status-ok { color: green; font-weight: bold; }
+        .status-error { color: red; font-weight: bold; }
+        .status-warning { color: orange; font-weight: bold; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Reservas BookHub</h1>
+        <p>Abra o console do navegador (F12) para ver mensagens detalhadas</p>
+    </div>
+
+    <div class="container">
+        <h2>📋 Usuário Logado</h2>
+        <pre id="usuarioLogado">Carregando...</pre>
+        <button onclick="verificarUsuario()">Verificar Usuário</button>
+    </div>
+
+    <div class="container">
+        <h2>📦 Reservas no Storage</h2>
+        <pre id="todasReservas">Carregando...</pre>
+        <button onclick="mostrarTodasReservas()">Atualizar</button>
+    </div>
+
+    <div class="container">
+        <h2>🎯 Reservas do Usuário Logado</h2>
+        <pre id="reservasDoUsuario">Carregando...</pre>
+        <button onclick="filtrarReservasDoUsuario()">Filtrar</button>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Testes Rápidos</h2>
+        <button onclick="limparTudo()">❌ Limpar Todos os Dados</button>
+        <button onclick="criarReservaTest()">✅ Criar Reserva de Teste</button>
+        <button onclick="irParaPerfil()">➡️ Ir para o Perfil</button>
+    </div>
+
+    <div class="container">
+        <h2>📊 Sumário</h2>
+        <div id="sumario">
+            <p>Clique nos botões acima para atualizar o sumário</p>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY_SESSION = 'bookhub-session';
+        const STORAGE_KEY_RESERVAS = 'bookhub-reservas';
+
+        function carregarUsuarioLogado() {
+            try {
+                const userData = localStorage.getItem(STORAGE_KEY_SESSION);
+                return userData ? JSON.parse(userData) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function lerReservas() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY_RESERVAS) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function obterReservasDoAluno(usuario) {
+            if (!usuario || !usuario.id) return [];
+            const todasReservas = lerReservas();
+            const idUsuario = usuario.id;
+            const emailUsuario = usuario.email?.toLowerCase?.() || '';
+            const nomeUsuario = usuario.nome?.toLowerCase?.() || '';
+
+            return todasReservas.filter((reserva) => {
+                if (reserva.idAluno && reserva.idAluno === idUsuario) return true;
+                if (reserva.emailAlunoRegistro?.toLowerCase?.() === emailUsuario) return true;
+                if (reserva.emailAluno?.toLowerCase?.() === emailUsuario) return true;
+                if (reserva.nomeAluno?.toLowerCase?.() === nomeUsuario) return true;
+                return false;
+            });
+        }
+
+        function verificarUsuario() {
+            const usuario = carregarUsuarioLogado();
+            const div = document.getElementById('usuarioLogado');
+            if (usuario) {
+                div.textContent = JSON.stringify(usuario, null, 2);
+                document.querySelector('.status-ok').innerText = 'OK - Usuário logado';
+            } else {
+                div.textContent = 'ERRO: Nenhum usuário logado!';
+                div.className = 'status-error';
+            }
+        }
+
+        function mostrarTodasReservas() {
+            const reservas = lerReservas();
+            const div = document.getElementById('todasReservas');
+            div.textContent = JSON.stringify(reservas, null, 2);
+            
+            const sumario = document.getElementById('sumario');
+            sumario.innerHTML = `<p><span class="status-ok">Total de reservas:</span> ${reservas.length}</p>`;
+        }
+
+        function filtrarReservasDoUsuario() {
+            const usuario = carregarUsuarioLogado();
+            const div = document.getElementById('reservasDoUsuario');
+            
+            if (!usuario) {
+                div.textContent = 'ERRO: Nenhum usuário logado!';
+                div.className = 'status-error';
+                return;
+            }
+
+            const reservas = obterReservasDoAluno(usuario);
+            div.textContent = JSON.stringify(reservas, null, 2);
+            
+            const sumario = document.getElementById('sumario');
+            sumario.innerHTML += `<p><span class="status-ok">Reservas do usuário ${usuario.nome}:</span> ${reservas.length}</p>`;
+        }
+
+        function criarReservaTest() {
+            const usuario = carregarUsuarioLogado();
+            if (!usuario) {
+                alert('Nenhum usuário logado!');
+                return;
+            }
+
+            const novaReserva = {
+                id: Date.now().toString(),
+                nomelivro: '[TESTE] Livro de Teste',
+                idlivro: 'teste-123',
+                nomeAluno: usuario.nome,
+                emailAluno: 'teste@email.com',
+                turmaAluno: 'Teste',
+                status: 'pendente',
+                dataReserva: new Date().toISOString(),
+                idAluno: usuario.id,
+                emailAlunoRegistro: usuario.email
+            };
+
+            const reservas = lerReservas();
+            reservas.push(novaReserva);
+            localStorage.setItem(STORAGE_KEY_RESERVAS, JSON.stringify(reservas));
+            
+            alert('✅ Reserva de teste criada!\n\nClique em "Filtrar" para ver se aparece.');
+            filtrarReservasDoUsuario();
+        }
+
+        function limparTudo() {
+            if (confirm('⚠️ Tem certeza que quer limpar TODOS os dados?')) {
+                localStorage.removeItem(STORAGE_KEY_RESERVAS);
+                localStorage.removeItem(STORAGE_KEY_SESSION);
+                alert('Dados limpos!');
+                location.reload();
+            }
+        }
+
+        function irParaPerfil() {
+            window.location.href = './perfil/perfil.html';
+        }
+
+        // Carregar dados ao abrir a página
+        window.addEventListener('load', () => {
+            verificarUsuario();
+            mostrarTodasReservas();
+            filtrarReservasDoUsuario();
+        });
+    </script>
+</body>
+</html>
