@@ -296,7 +296,14 @@ const server = http.createServer((req, res) => {
   }
 
   if (url.pathname === '/') {
-    serveFile(res, path.join(projectRoot, 'pagina-inicial', 'inicial.html'));
+    res.writeHead(302, { 'Location': '/pagina-inicial/inicial.html' });
+    res.end();
+    return;
+  }
+
+  if (url.pathname === '/pagina-inicial' || url.pathname === '/pagina-inicial/') {
+    res.writeHead(302, { 'Location': '/pagina-inicial/inicial.html' });
+    res.end();
     return;
   }
 
