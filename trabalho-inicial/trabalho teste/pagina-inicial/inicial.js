@@ -55,7 +55,15 @@ function lerUsuarios() {
 
 function carregarUsuarioLogado() {
     try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSION) || 'null');
+        const userData = localStorage.getItem(STORAGE_KEY_SESSION);
+        if (!userData) return null;
+
+        const usuario = JSON.parse(userData);
+        if (!usuario?.id) return null;
+
+        const usuarios = lerUsuarios();
+        const usuarioAtual = usuarios.find((item) => item.id === usuario.id);
+        return usuarioAtual || usuario;
     } catch (error) {
         return null;
     }
@@ -291,7 +299,9 @@ async function enviarReserva(event) {
         status: 'pendente',
         dataReserva: new Date().toISOString(),
         idAluno: usuario.id,
-        emailAlunoRegistro: usuario.email
+        emailAlunoRegistro: usuario.email || '',
+        walletAddress: usuario.walletAddress || '',
+        authMethod: usuario.authMethod || ''
     };
 
     try {

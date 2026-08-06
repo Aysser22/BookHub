@@ -80,6 +80,11 @@ function salvarUsuarioLogado(usuario) {
     localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuario));
 }
 
+function formatarEnderecoWallet(endereco) {
+    if (!endereco || typeof endereco !== 'string') return 'Endereço inválido';
+    return `${endereco.slice(0, 6)}...${endereco.slice(-6)}`;
+}
+
 function salvarUsuarios(usuarios) {
     localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(usuarios));
 }
@@ -132,10 +137,15 @@ function obterNotificacoesUsuario(usuario) {
     if (!usuario) return [];
 
     const notifs = lerNotificacoes();
-    const nomes = [usuario.nome?.toLowerCase?.(), usuario.email?.toLowerCase?.()].filter(Boolean);
-    const mensagens = [];
+    const identificadores = [
+        usuario.nome?.toLowerCase?.(),
+        usuario.email?.toLowerCase?.(),
+        usuario.walletAddress?.toLowerCase?.(),
+        usuario.id?.toLowerCase?.()
+    ].filter(Boolean);
 
-    nomes.forEach((chave) => {
+    const mensagens = [];
+    identificadores.forEach((chave) => {
         if (Array.isArray(notifs[chave])) {
             mensagens.push(...notifs[chave]);
         }
@@ -156,15 +166,19 @@ function obterReservasDoAluno(usuario) {
     const idUsuario = usuario.id;
     const emailUsuario = usuario.email?.toLowerCase?.() || '';
     const nomeUsuario = usuario.nome?.toLowerCase?.() || '';
+    const carteiraUsuario = usuario.walletAddress?.toLowerCase?.() || '';
 
     const reservasDoAluno = todasReservas.filter((reserva) => {
-        // Prioridade 1: ID do aluno (mais confiável)
         if (reserva.idAluno && reserva.idAluno === idUsuario) {
             console.log('Reserva encontrada por ID:', reserva);
             return true;
         }
 
-        // Prioridade 2: Email registrado
+        if (reserva.walletAddress && carteiraUsuario && reserva.walletAddress.toLowerCase?.() === carteiraUsuario) {
+            console.log('Reserva encontrada por carteira:', reserva);
+            return true;
+        }
+
         if (reserva.emailAlunoRegistro) {
             const emailReserva = reserva.emailAlunoRegistro.toLowerCase?.();
             if (emailReserva === emailUsuario) {
@@ -173,7 +187,6 @@ function obterReservasDoAluno(usuario) {
             }
         }
 
-        // Prioridade 3: Email digitado no formulário
         if (reserva.emailAluno && emailUsuario) {
             const emailReserva = reserva.emailAluno.toLowerCase?.();
             if (emailReserva === emailUsuario) {
@@ -182,7 +195,6 @@ function obterReservasDoAluno(usuario) {
             }
         }
 
-        // Prioridade 4: Nome do aluno
         if (reserva.nomeAluno && nomeUsuario) {
             const nomeReserva = reserva.nomeAluno.toLowerCase?.();
             if (nomeReserva === nomeUsuario) {
@@ -299,6 +311,17 @@ async function atualizarPerfil() {
     document.getElementById('estatLidos').textContent = usuarioAtual.estatisticas?.lidos || 0;
     document.getElementById('estatEmprestados').textContent = usuarioAtual.estatisticas?.emprestados || 0;
     document.getElementById('estatAtrasos').textContent = usuarioAtual.estatisticas?.atrasos || 0;
+
+    const carteiraElement = document.getElementById('contaWallet');
+    if (carteiraElement) {
+        if (usuarioAtual.authMethod && usuarioAtual.walletAddress) {
+            const tipoCarteira = usuarioAtual.authMethod === 'phantom' ? 'Phantom' : 'MetaMask';
+            const endereco = usuarioAtual.walletAddress;
+            carteiraElement.innerHTML = `Carteira conectada: <span>${tipoCarteira}</span> • ${endereco.slice(0, 6)}...${endereco.slice(-6)}`;
+        } else {
+            carteiraElement.textContent = 'Nenhuma carteira conectada';
+        }
+    }
 
     const historico = document.getElementById('historicoEmprestimos');
     if (historico) {

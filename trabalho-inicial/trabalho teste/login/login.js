@@ -2,7 +2,9 @@ const STORAGE_KEY_USERS = 'bookhub-users';
 const STORAGE_KEY_SESSION = 'bookhub-session';
 const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : window.location.origin;
 const API_URL_USERS = `${API_BASE}/api/users`;
-const form = document.querySelector('.auth-form');
+const btnPhantom = document.getElementById('btnConnectPhantom');
+const btnMetaMask = document.getElementById('btnConnectMetaMask');
+const walletMessage = document.getElementById('walletMessage');
 
 function atualizarBotaoLogin() {
     const link = document.querySelector('.btn-login');
@@ -29,6 +31,12 @@ function atualizarBotaoLogin() {
     }
 }
 
+function mostrarMensagem(texto, tipo = 'info') {
+    if (!walletMessage) return;
+    walletMessage.textContent = texto;
+    walletMessage.className = `wallet-message ${tipo}`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     atualizarBotaoLogin();
     if (window.location.protocol !== 'file:') {
@@ -47,15 +55,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 window.addEventListener('pageshow', atualizarBotaoLogin);
 window.addEventListener('storage', atualizarBotaoLogin);
-const titulo = document.querySelector('.auth-card h1');
-const subtitulo = document.querySelector('.auth-card p');
-const button = form?.querySelector('button');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const anoInput = document.getElementById('anoEscolar');
-const turmaInput = document.getElementById('turma');
-const nomeSocialInput = document.getElementById('nomeSocial');
-const camposCadastro = document.getElementById('camposCadastro');
 
 function lerUsuarios() {
     try {
@@ -69,22 +68,37 @@ function salvarUsuarios(usuarios) {
     localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(usuarios));
 }
 
-function criarConta(email, password, nomeSocial, anoEscolar, turma) {
+function salvarSessaoUsuario(usuario) {
+    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuario));
+}
+
+function isEthereumAddress(address) {
+    return typeof address === 'string' && /^0x[0-9a-fA-F]{40}$/.test(address);
+}
+
+function isLikelySolanaAddress(address) {
+    return typeof address === 'string' && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+}
+
+function criarContaWallet(walletType, address) {
     const usuarios = lerUsuarios();
-    const jaExiste = usuarios.some((usuario) => usuario.email.toLowerCase() === email.toLowerCase());
-    if (jaExiste) {
-        throw new Error('Este e-mail já está cadastrado.');
+    const existente = usuarios.find((usuario) => usuario.walletAddress === address || usuario.id === address);
+    if (existente) {
+        return existente;
     }
 
+    const nomeCurto = `${address.slice(0, 4)}...${address.slice(-4)}`;
     const novoUsuario = {
-        id: Date.now().toString(),
-        email,
-        password,
-        nome: nomeSocial || email.split('@')[0],
+        id: address,
+        walletAddress: address,
+        authMethod: walletType,
+        email: `${address}@wallet`,
+        password: null,
+        nome: walletType === 'phantom' ? `Phantom ${nomeCurto}` : `MetaMask ${nomeCurto}`,
         perfil: 'Aluno',
-        ano: anoEscolar || '3º Ano',
-        turma: turma || 'A',
-        matricula: `#${Date.now().toString().slice(-6)}`,
+        ano: '3º Ano',
+        turma: 'A',
+        matricula: `#${address.slice(-6)}`,
         estatisticas: {
             lidos: 0,
             emprestados: 0,
@@ -98,114 +112,63 @@ function criarConta(email, password, nomeSocial, anoEscolar, turma) {
     return novoUsuario;
 }
 
-function fazerLogin(email, password) {
-    const usuarios = lerUsuarios();
-    const usuario = usuarios.find((item) => item.email.toLowerCase() === email.toLowerCase() && item.password === password);
-    if (!usuario) {
-        throw new Error('E-mail ou senha incorretos.');
+async function connectMetaMask() {
+    if (!window.ethereum) {
+        throw new Error('MetaMask não encontrado. Instale a extensão e tente novamente.');
     }
-    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuario));
-    return usuario;
+    if (!window.ethereum.isMetaMask) {
+        throw new Error('MetaMask não está disponível no navegador atual.');
+    }
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    if (!Array.isArray(accounts) || accounts.length === 0) {
+        throw new Error('Nenhuma conta retornada pelo MetaMask. Verifique a conexão.');
+    }
+    const address = accounts[0];
+    if (!isEthereumAddress(address)) {
+        throw new Error('Endereço Ethereum inválido retornado pelo MetaMask.');
+    }
+    return address.toLowerCase();
 }
 
-function alternarModoCadastro() {
-    const modoCadastro = button?.dataset.modo === 'cadastro';
-    if (!form) return;
-
-    if (modoCadastro) {
-        titulo.textContent = 'Entrar no BookHub';
-        subtitulo.textContent = 'Use sua conta para acessar o acervo, seu perfil e a área administrativa.';
-        button.textContent = 'Entrar';
-        button.dataset.modo = 'login';
-        camposCadastro?.classList.add('hidden');
-        nomeSocialInput.required = false;
-        anoInput.required = false;
-        turmaInput.required = false;
-    } else {
-        titulo.textContent = 'Criar conta no BookHub';
-        subtitulo.textContent = 'Cadastre-se para salvar suas estatísticas e histórico de leitura.';
-        button.textContent = 'Criar conta';
-        button.dataset.modo = 'cadastro';
-        camposCadastro?.classList.remove('hidden');
-        nomeSocialInput.required = true;
-        anoInput.required = true;
-        turmaInput.required = true;
+async function connectPhantom() {
+    if (!window.solana) {
+        throw new Error('Phantom não encontrado. Instale a carteira Phantom e tente novamente.');
     }
+    if (!window.solana.isPhantom) {
+        throw new Error('A carteira Phantom não está disponível neste navegador.');
+    }
+    const response = await window.solana.connect();
+    const address = response?.publicKey?.toString?.();
+    if (!address || !isLikelySolanaAddress(address)) {
+        throw new Error('Endereço Solana inválido retornado pelo Phantom.');
+    }
+    return address;
 }
 
-form?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    const nomeSocial = nomeSocialInput?.value.trim();
-    const anoEscolar = anoInput?.value.trim();
-    const turma = turmaInput?.value.trim();
-    const modoCadastro = button?.dataset.modo === 'cadastro';
-
+async function autenticarComWallet(tipo) {
     try {
-        let usuario = null;
+        mostrarMensagem('Conectando carteira, aguarde...', 'info');
+        let address = null;
 
-        if (modoCadastro && window.location.protocol !== 'file:') {
-            // try create via API
-            try {
-                const novo = {
-                    email,
-                    password,
-                    nome: nomeSocial || email.split('@')[0],
-                    perfil: 'Aluno',
-                    ano: anoEscolar || '3º Ano',
-                    turma: turma || 'A',
-                    matricula: `#${Date.now().toString().slice(-6)}`,
-                    estatisticas: { lidos: 0, emprestados: 0, atrasos: 0 },
-                    historico: []
-                };
-
-                const res = await fetch(API_URL_USERS, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(novo)
-                });
-
-                if (res.ok) {
-                    const body = await res.json();
-                    usuario = body.user;
-                    const usuariosLocais = lerUsuarios();
-                    usuariosLocais.push(usuario);
-                    salvarUsuarios(usuariosLocais);
-                } else {
-                    // fallback to local creation
-                    usuario = criarConta(email, password, nomeSocial, anoEscolar, turma);
-                }
-            } catch (err) {
-                usuario = criarConta(email, password, nomeSocial, anoEscolar, turma);
-            }
-        } else if (modoCadastro) {
-            usuario = criarConta(email, password, nomeSocial, anoEscolar, turma);
+        if (tipo === 'phantom') {
+            address = await connectPhantom();
+        } else if (tipo === 'metamask') {
+            address = await connectMetaMask();
         } else {
-            usuario = fazerLogin(email, password);
+            throw new Error('Tipo de carteira inválido.');
         }
 
-        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuario));
+        if (!address) {
+            throw new Error('Falha ao obter o endereço da carteira.');
+        }
+
+        const usuario = criarContaWallet(tipo, address);
+        salvarSessaoUsuario(usuario);
         window.location.href = '../perfil/perfil.html';
     } catch (error) {
-        alert(error.message);
+        mostrarMensagem(error.message || 'Erro ao conectar a carteira.', 'error');
     }
-});
+}
 
-const linkAlternar = document.createElement('p');
-linkAlternar.className = 'toggle-auth';
-linkAlternar.innerHTML = '<a href="#">Ainda não tenho conta</a>';
-form?.appendChild(linkAlternar);
-
-linkAlternar.querySelector('a')?.addEventListener('click', (event) => {
-    event.preventDefault();
-    alternarModoCadastro();
-});
-
-button.dataset.modo = 'login';
-camposCadastro?.classList.add('hidden');
-nomeSocialInput.required = false;
-anoInput.required = false;
-turmaInput.required = false;
-atualizarBotaoLogin();
+btnMetaMask?.addEventListener('click', () => autenticarComWallet('metamask'));
+btnPhantom?.addEventListener('click', () => autenticarComWallet('phantom'));

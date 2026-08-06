@@ -69,16 +69,20 @@ body {
     width: 100%;
     max-width: 450px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: center;
 }
 
 .auth-card h1 {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     color: #5C3A21;
+    font-size: 2rem;
 }
 
 .auth-card p {
     margin-bottom: 20px;
     color: #7A6354;
+    line-height: 1.7;
+    font-size: 1rem;
 }
 
 .auth-form {
@@ -105,6 +109,67 @@ body {
     background: #8B5A2B;
     color: white;
     cursor: pointer;
+}
+
+.wallet-options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+    align-items: center;
+}
+
+.wallet-btn {
+    width: 100%;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wallet-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-btn.phantom {
+    background: #5624d0;
+}
+
+.wallet-btn.metamask {
+    background: #f6851b;
+}
+
+.wallet-message {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.97rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.wallet-message.info {
+    background: #eef4ff;
+    color: #1b3f7d;
+    border: 1px solid #bfd3ff;
+}
+
+.wallet-message.error {
+    background: #ffe8e5;
+    color: #8b1e1c;
+    border: 1px solid #f2c8c4;
+}
+
+.help-text {
+    margin-top: 16px;
+    color: #7a6354;
+    font-size: 0.95rem;
+    text-align: center;
 }
 
 .campos-cadastro {

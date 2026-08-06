@@ -40,6 +40,24 @@
     font-size: 16px;
 }
 
+.wallet-info {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: #3b4a76;
+    background: #eef4ff;
+    border: 1px solid #bfd3ff;
+    padding: 10px 12px;
+    border-radius: 10px;
+}
+
+.wallet-info span {
+    font-weight: 700;
+    color: #18408f;
+}
+
 .profile-details .registration {
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
