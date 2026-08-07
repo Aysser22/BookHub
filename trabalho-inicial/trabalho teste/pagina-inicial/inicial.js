@@ -7,6 +7,20 @@ const API_URL = `${API_BASE}/api/livros`;
 const API_URL_RESERVAS = `${API_BASE}/api/reservas`;
 const API_URL_USERS = `${API_BASE}/api/users`;
 
+// Exigir login para acessar a página inicial
+(function requireLogin() {
+    try {
+        const sess = localStorage.getItem(STORAGE_KEY_SESSION);
+        if (!sess) {
+            const loginPath = window.location.pathname.includes('/login/') ? './login.html' : '../login/login.html';
+            const next = encodeURIComponent(window.location.href);
+            window.location.href = `${loginPath}?next=${next}`;
+        }
+    } catch (e) {
+        // se algo falhar, permitir que a página lide com a falta de sessão
+    }
+})();
+
 function atualizarBotaoLogin() {
     const link = document.querySelector('.btn-login');
     if (!link) return;

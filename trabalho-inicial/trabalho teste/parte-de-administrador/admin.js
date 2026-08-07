@@ -28,6 +28,20 @@ const STORAGE_KEY_ADMIN = 'bookhub-admin-autorizado';
 const STORAGE_KEY_ADMIN_SESSION = 'bookhub-admin-session';
 const STORAGE_KEY_ADMIN_USER = 'bookhub-admin-user';
 
+// Exigir login para acessar o painel/admin
+(function requireLogin() {
+    try {
+        const sess = localStorage.getItem(STORAGE_KEY_SESSION);
+        if (!sess) {
+            const loginPath = window.location.pathname.includes('/login/') ? './login.html' : '../login/login.html';
+            const next = encodeURIComponent(window.location.href);
+            window.location.href = `${loginPath}?next=${next}`;
+        }
+    } catch (e) {
+        // ignore
+    }
+})();
+
 function atualizarBotaoLogin() {
     const link = document.querySelector('.btn-login');
     if (!link) return;
