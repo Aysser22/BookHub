@@ -164,7 +164,17 @@ async function autenticarComWallet(tipo) {
 
         const usuario = criarContaWallet(tipo, address);
         salvarSessaoUsuario(usuario);
-        window.location.href = '../perfil/perfil.html';
+        const params = new URLSearchParams(window.location.search);
+        const next = params.get('next');
+        if (next) {
+            try {
+                window.location.href = decodeURIComponent(next);
+            } catch (e) {
+                window.location.href = '../perfil/perfil.html';
+            }
+        } else {
+            window.location.href = '../perfil/perfil.html';
+        }
     } catch (error) {
         mostrarMensagem(error.message || 'Erro ao conectar a carteira.', 'error');
     }
