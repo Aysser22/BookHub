@@ -2,9 +2,6 @@ const btnGerenciarLivros = document.getElementById('btnGerenciarLivros');
 const livrosPanel = document.getElementById('livrosPanel');
 const acessoAdmin = document.getElementById('acessoAdmin');
 const conteudoAdmin = document.getElementById('conteudoAdmin');
-const formAcessoAdmin = document.getElementById('formAcessoAdmin');
-const senhaAdminInput = document.getElementById('senhaAdmin');
-const mostrarSenhaAdmin = document.getElementById('mostrarSenhaAdmin');
 const mensagemAcessoAdmin = document.getElementById('mensagemAcessoAdmin');
 const formLivro = document.getElementById('formLivro');
 const tituloInput = document.getElementById('titulo');
@@ -80,7 +77,41 @@ window.addEventListener('storage', () => {
     verificarAcessoAdmin();
 });
 
-const SENHA_ADMIN = 'bonde das malucas';
+function normalizarTag(tag) {
+    return String(tag || '').trim().toLowerCase();
+}
+
+function usuarioEhAdmin(usuario) {
+    if (!usuario || typeof usuario !== 'object') return false;
+
+    const tags = Array.isArray(usuario.tags) ? usuario.tags : [];
+    const valores = [
+        usuario.isAdmin,
+        usuario.role,
+        usuario.perfil,
+        usuario.tipo,
+        usuario.nivel
+    ].map((valor) => normalizarTag(valor));
+
+    const tagsNormalizadas = tags.map((tag) => normalizarTag(tag));
+    const valoresAdmin = ['admin', 'administrador', 'adm'];
+
+    return (
+        usuario.isAdmin === true ||
+        valores.some((valor) => valoresAdmin.includes(valor)) ||
+        tagsNormalizadas.some((tag) => valoresAdmin.includes(tag))
+    );
+}
+
+function carregarUsuarioLogado() {
+    try {
+        const userData = localStorage.getItem(STORAGE_KEY_SESSION);
+        if (!userData) return null;
+        return JSON.parse(userData);
+    } catch (error) {
+        return null;
+    }
+}
 
 function abrirPainelAdmin() {
     acessoAdmin?.classList.add('hidden');
@@ -97,14 +128,17 @@ function fecharPainelAdmin() {
 }
 
 function verificarAcessoAdmin() {
-    const usuarioLogado = localStorage.getItem(STORAGE_KEY_SESSION) || '';
-    const usuarioAutorizado = sessionStorage.getItem(STORAGE_KEY_ADMIN_USER) || '';
-    const autorizado = sessionStorage.getItem(STORAGE_KEY_ADMIN_SESSION) === 'true' && usuarioLogado === usuarioAutorizado;
+    const usuarioLogado = carregarUsuarioLogado();
 
-    if (autorizado) {
+    if (usuarioEhAdmin(usuarioLogado)) {
         abrirPainelAdmin();
-    } else {
-        fecharPainelAdmin();
+        if (mensagemAcessoAdmin) mensagemAcessoAdmin.textContent = '';
+        return;
+    }
+
+    fecharPainelAdmin();
+    if (mensagemAcessoAdmin) {
+        mensagemAcessoAdmin.textContent = 'Seu perfil não tem permissão para acessar o painel administrativo.';
     }
 }
 
@@ -323,27 +357,6 @@ async function renderizarCatalogo() {
 }
 
 atualizarBotaoLogin();
-
-if (mostrarSenhaAdmin && senhaAdminInput) {
-    mostrarSenhaAdmin.addEventListener('change', () => {
-        senhaAdminInput.type = mostrarSenhaAdmin.checked ? 'text' : 'password';
-    });
-}
-
-if (formAcessoAdmin) {
-    formAcessoAdmin.addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        if (senhaAdminInput.value === SENHA_ADMIN) {
-            abrirPainelAdmin();
-            mensagemAcessoAdmin.textContent = '';
-        } else {
-            mensagemAcessoAdmin.textContent = 'Senha incorreta.';
-        }
-
-        formAcessoAdmin.reset();
-    });
-}
 
 verificarAcessoAdmin();
 window.addEventListener('pageshow', verificarAcessoAdmin);

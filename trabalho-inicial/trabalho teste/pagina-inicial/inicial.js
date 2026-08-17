@@ -21,6 +21,32 @@ const API_URL_USERS = `${API_BASE}/api/users`;
     }
 })();
 
+function normalizarTag(tag) {
+    return String(tag || '').trim().toLowerCase();
+}
+
+function usuarioEhAdmin(usuario) {
+    if (!usuario || typeof usuario !== 'object') return false;
+
+    const tags = Array.isArray(usuario.tags) ? usuario.tags : [];
+    const valores = [
+        usuario.isAdmin,
+        usuario.role,
+        usuario.perfil,
+        usuario.tipo,
+        usuario.nivel
+    ].map((valor) => normalizarTag(valor));
+
+    const tagsNormalizadas = tags.map((tag) => normalizarTag(tag));
+    const valoresAdmin = ['admin', 'administrador', 'adm'];
+
+    return (
+        usuario.isAdmin === true ||
+        valores.some((valor) => valoresAdmin.includes(valor)) ||
+        tagsNormalizadas.some((tag) => valoresAdmin.includes(tag))
+    );
+}
+
 function atualizarBotaoLogin() {
     const link = document.querySelector('.btn-login');
     if (!link) return;
@@ -46,9 +72,29 @@ function atualizarBotaoLogin() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', atualizarBotaoLogin);
-window.addEventListener('pageshow', atualizarBotaoLogin);
-window.addEventListener('storage', atualizarBotaoLogin);
+function atualizarVisibilidadePainelAdmin() {
+    const usuario = carregarUsuarioLogado();
+    const linksAdmin = document.querySelectorAll('a[href*="admin.html"]');
+
+    linksAdmin.forEach((link) => {
+        const item = link.closest('li');
+        const deveMostrar = usuarioEhAdmin(usuario);
+        if (item) item.style.display = deveMostrar ? '' : 'none';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    atualizarBotaoLogin();
+    atualizarVisibilidadePainelAdmin();
+});
+window.addEventListener('pageshow', () => {
+    atualizarBotaoLogin();
+    atualizarVisibilidadePainelAdmin();
+});
+window.addEventListener('storage', () => {
+    atualizarBotaoLogin();
+    atualizarVisibilidadePainelAdmin();
+});
 
 function lerLivrosLocais() {
     try {

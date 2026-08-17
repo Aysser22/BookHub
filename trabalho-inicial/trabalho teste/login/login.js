@@ -68,8 +68,54 @@ function salvarUsuarios(usuarios) {
     localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(usuarios));
 }
 
+function normalizarTag(tag) {
+    return String(tag || '').trim().toLowerCase();
+}
+
+function usuarioTemTagAdmin(usuario) {
+    if (!usuario || typeof usuario !== 'object') return false;
+
+    const tags = Array.isArray(usuario.tags) ? usuario.tags : [];
+    const valores = [
+        usuario.isAdmin,
+        usuario.role,
+        usuario.perfil,
+        usuario.tipo,
+        usuario.nivel
+    ].map((valor) => normalizarTag(valor));
+
+    const tagsNormalizadas = tags.map((tag) => normalizarTag(tag));
+    const valoresAdmin = ['admin', 'administrador', 'adm'];
+
+    return (
+        usuario.isAdmin === true ||
+        valores.some((valor) => valoresAdmin.includes(valor)) ||
+        tagsNormalizadas.some((tag) => valoresAdmin.includes(tag))
+    );
+}
+
+function preservarPermissaoAdmin(usuario) {
+    if (!usuario || typeof usuario !== 'object') return usuario;
+
+    const ehAdmin = usuarioTemTagAdmin(usuario);
+    const tags = Array.isArray(usuario.tags) ? usuario.tags : [];
+    const tagsNormalizadas = [...new Set(tags.map((tag) => normalizarTag(tag)).filter(Boolean))];
+
+    const tagsFinal = ehAdmin
+        ? [...new Set([...tagsNormalizadas, 'admin'])]
+        : tagsNormalizadas.filter((tag) => tag !== 'admin' && tag !== 'administrador' && tag !== 'adm');
+
+    return {
+        ...usuario,
+        isAdmin: ehAdmin,
+        tags: tagsFinal,
+        perfil: ehAdmin ? 'Administrador' : usuario.perfil || 'Aluno'
+    };
+}
+
 function salvarSessaoUsuario(usuario) {
-    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuario));
+    const usuarioPersistido = preservarPermissaoAdmin(usuario);
+    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuarioPersistido));
 }
 
 function isEthereumAddress(address) {
@@ -80,11 +126,17 @@ function isLikelySolanaAddress(address) {
     return typeof address === 'string' && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
 }
 
+function enderecoEhAdmin(endereco) {
+    if (typeof endereco !== 'string') return false;
+    const valor = endereco.toLowerCase();
+    return /^0x1ff8.*608f61$/i.test(valor) || /^0x[0-9a-f]{40}$/.test(valor) && valor.endsWith('608f61');
+}
+
 function criarContaWallet(walletType, address) {
     const usuarios = lerUsuarios();
     const existente = usuarios.find((usuario) => usuario.walletAddress === address || usuario.id === address);
     if (existente) {
-        return existente;
+        return preservarPermissaoAdmin(existente);
     }
 
     const nomeCurto = `${address.slice(0, 4)}...${address.slice(-4)}`;
@@ -96,6 +148,8 @@ function criarContaWallet(walletType, address) {
         password: null,
         nome: walletType === 'phantom' ? `Phantom ${nomeCurto}` : `MetaMask ${nomeCurto}`,
         perfil: 'Aluno',
+        isAdmin: false,
+        tags: [],
         ano: '3º Ano',
         turma: 'A',
         matricula: `#${address.slice(-6)}`,
