@@ -134,12 +134,22 @@ function enderecoEhAdmin(endereco) {
 
 function criarContaWallet(walletType, address) {
     const usuarios = lerUsuarios();
-    const existente = usuarios.find((usuario) => usuario.walletAddress === address || usuario.id === address);
+    const nomeCurto = `${address.slice(0, 4)}...${address.slice(-4)}`;
+    const numeroCarteira = address.slice(-6);
+    
+    // Procurar por endereço da carteira ou número de carteira
+    const existente = usuarios.find((usuario) => 
+        usuario.walletAddress === address || 
+        usuario.id === address ||
+        usuario.numero_carteira === numeroCarteira ||
+        usuario.wallet === address ||
+        String(usuario.numero_carteira || '').includes(address.slice(-6))
+    );
+    
     if (existente) {
         return preservarPermissaoAdmin(existente);
     }
 
-    const nomeCurto = `${address.slice(0, 4)}...${address.slice(-4)}`;
     const novoUsuario = {
         id: address,
         walletAddress: address,
@@ -153,6 +163,8 @@ function criarContaWallet(walletType, address) {
         ano: '3º Ano',
         turma: 'A',
         matricula: `#${address.slice(-6)}`,
+        numero_carteira: numeroCarteira,
+        wallet: address,
         estatisticas: {
             lidos: 0,
             emprestados: 0,
@@ -214,6 +226,19 @@ async function autenticarComWallet(tipo) {
 
         if (!address) {
             throw new Error('Falha ao obter o endereço da carteira.');
+        }
+
+        // Buscar dados atualizados do servidor antes de criar a conta
+        try {
+            const res = await fetch(API_URL_USERS, { cache: 'no-store' });
+            if (res.ok) {
+                const usuarios = await res.json();
+                if (Array.isArray(usuarios)) {
+                    salvarUsuarios(usuarios);
+                }
+            }
+        } catch (err) {
+            // fallback: use localStorage
         }
 
         const usuario = criarContaWallet(tipo, address);
