@@ -26,7 +26,7 @@ const btnPromoverAdmin = document.getElementById('btnPromoverAdmin');
 const mensagemAdminStatus = document.getElementById('mensagemAdminStatus');
 const listaAdminsPanel = document.getElementById('listaAdminsPanel');
 
-const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : window.location.origin;
+const API_BASE = 'http://localhost:3000';
 const API_URL = `${API_BASE}/api/livros`;
 const API_USERS_URL = `${API_BASE}/api/users`;
 const STORAGE_KEY = 'bookhub-livros';

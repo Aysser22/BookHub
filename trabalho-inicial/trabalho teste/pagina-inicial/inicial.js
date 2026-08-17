@@ -2,7 +2,7 @@ const STORAGE_KEY = 'bookhub-livros';
 const STORAGE_KEY_USERS = 'bookhub-users';
 const STORAGE_KEY_SESSION = 'bookhub-session';
 const STORAGE_KEY_RESERVAS = 'bookhub-reservas';
-const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : window.location.origin;
+const API_BASE = 'http://localhost:3000';
 const API_URL = `${API_BASE}/api/livros`;
 const API_URL_RESERVAS = `${API_BASE}/api/reservas`;
 const API_URL_USERS = `${API_BASE}/api/users`;

@@ -10,7 +10,7 @@ const STORAGE_KEY_SESSION = 'bookhub-session';
 const STORAGE_KEY_RESERVAS = 'bookhub-reservas';
 const STORAGE_KEY_ADMIN_SESSION = 'bookhub-admin-session';
 const STORAGE_KEY_ADMIN_USER = 'bookhub-admin-user';
-const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : window.location.origin;
+const API_BASE = 'http://localhost:3000';
 const API_URL_RESERVAS = `${API_BASE}/api/reservas`;
 
 let todasAsReservas = [];
