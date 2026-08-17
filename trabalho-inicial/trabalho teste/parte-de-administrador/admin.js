@@ -17,9 +17,20 @@ const mensagemStatus = document.getElementById('mensagemStatus');
 const listaLivrosAdmin = document.getElementById('listaLivrosAdmin');
 const btnSalvarLivro = document.getElementById('btnSalvarLivro');
 
+// Elementos do painel de admins
+const btnGerenciarAdmins = document.getElementById('btnGerenciarAdmins');
+const adminsPanel = document.getElementById('adminsPanel');
+const formPromoverAdmin = document.getElementById('formPromoverAdmin');
+const carteiraInput = document.getElementById('carteiraInput');
+const btnPromoverAdmin = document.getElementById('btnPromoverAdmin');
+const mensagemAdminStatus = document.getElementById('mensagemAdminStatus');
+const listaAdminsPanel = document.getElementById('listaAdminsPanel');
+
 const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000' : window.location.origin;
 const API_URL = `${API_BASE}/api/livros`;
+const API_USERS_URL = `${API_BASE}/api/users`;
 const STORAGE_KEY = 'bookhub-livros';
+const STORAGE_KEY_USERS = 'bookhub-users';
 const STORAGE_KEY_SESSION = 'bookhub-session';
 const STORAGE_KEY_ADMIN = 'bookhub-admin-autorizado';
 const STORAGE_KEY_ADMIN_SESSION = 'bookhub-admin-session';
@@ -431,6 +442,180 @@ if (listaLivrosAdmin) {
                 btnSalvarLivro.textContent = 'Atualizar livro';
                 atualizarPreview();
                 mostrarMensagem(`Editando: ${livro.titulo}`);
+            }
+        }
+    });
+}
+
+// ========== FUNÇÕES DE GERENCIAMENTO DE ADMINS ==========
+
+function lerUsuariosLocais() {
+    try {
+        const usuarios = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS) || '[]');
+        return Array.isArray(usuarios) ? usuarios : [];
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+function salvarUsuariosLocais(usuarios) {
+    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(usuarios));
+}
+
+async function carregarUsuarios() {
+    try {
+        const response = await fetch(API_USERS_URL, { cache: 'no-store' });
+        if (response.ok) {
+            const dados = await response.json();
+            if (Array.isArray(dados)) {
+                salvarUsuariosLocais(dados);
+                return dados;
+            }
+        }
+    } catch (error) {
+        console.warn('API indisponível, usando armazenamento local.', error);
+    }
+
+    return lerUsuariosLocais();
+}
+
+function buscarUsuarioPorCarteira(carteira) {
+    const usuarios = lerUsuariosLocais();
+    return usuarios.find(user => 
+        String(user.numero_carteira || '').trim() === String(carteira).trim()
+    );
+}
+
+function promoverAAdmin(usuario) {
+    const usuarios = lerUsuariosLocais();
+    const index = usuarios.findIndex(u => u.numero_carteira === usuario.numero_carteira);
+    
+    if (index !== -1) {
+        usuarios[index].isAdmin = true;
+        usuarios[index].role = 'admin';
+        salvarUsuariosLocais(usuarios);
+        return true;
+    }
+    return false;
+}
+
+function removerAdminPrivilegio(carteira) {
+    const usuarios = lerUsuariosLocais();
+    const index = usuarios.findIndex(u => 
+        String(u.numero_carteira || '').trim() === String(carteira).trim()
+    );
+    
+    if (index !== -1) {
+        usuarios[index].isAdmin = false;
+        usuarios[index].role = 'usuario';
+        salvarUsuariosLocais(usuarios);
+        return true;
+    }
+    return false;
+}
+
+function mostrarMensagemAdmin(texto, tipo = 'sucesso') {
+    if (!mensagemAdminStatus) return;
+
+    const icone = tipo === 'erro' ? 'fa-circle-xmark' : 'fa-circle-check';
+    mensagemAdminStatus.innerHTML = `
+        <div class="toast-content">
+            <i class="fa-solid ${icone}"></i>
+            <span>${texto}</span>
+        </div>
+    `;
+    mensagemAdminStatus.className = `mensagem-status ${tipo} show`;
+
+    clearTimeout(mostrarMensagemAdmin.timeoutId);
+    mostrarMensagemAdmin.timeoutId = setTimeout(() => {
+        mensagemAdminStatus.className = 'mensagem-status';
+        mensagemAdminStatus.innerHTML = '';
+    }, 2800);
+}
+
+async function renderizarListaAdmins() {
+    if (!listaAdminsPanel) return;
+
+    const usuarios = await carregarUsuarios();
+    const admins = usuarios.filter(user => user.isAdmin === true || user.role === 'admin');
+    
+    listaAdminsPanel.innerHTML = '';
+
+    if (admins.length === 0) {
+        listaAdminsPanel.innerHTML = '<p>Nenhum admin cadastrado além de você.</p>';
+        return;
+    }
+
+    admins.forEach((admin) => {
+        const item = document.createElement('div');
+        item.className = 'item-admin';
+        item.innerHTML = `
+            <div class="info">
+                <strong>${admin.nome || 'Sem nome'}</strong>
+                <span>Carteira: ${admin.numero_carteira || 'N/A'} | Email: ${admin.email || 'N/A'}</span>
+            </div>
+            <div class="acoes">
+                <button type="button" class="btn-remover-admin" data-carteira="${admin.numero_carteira}">Remover Admin</button>
+            </div>
+        `;
+        listaAdminsPanel.appendChild(item);
+    });
+}
+
+// Event listeners do painel de admins
+if (btnGerenciarAdmins) {
+    btnGerenciarAdmins.addEventListener('click', () => {
+        adminsPanel.classList.toggle('hidden');
+        if (!adminsPanel.classList.contains('hidden')) {
+            renderizarListaAdmins();
+        }
+    });
+}
+
+if (formPromoverAdmin) {
+    formPromoverAdmin.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const carteira = carteiraInput.value.trim();
+        if (!carteira) {
+            mostrarMensagemAdmin('Por favor, insira o número da carteira.', 'erro');
+            return;
+        }
+
+        const usuario = buscarUsuarioPorCarteira(carteira);
+        
+        if (!usuario) {
+            mostrarMensagemAdmin('Usuário com essa carteira não encontrado.', 'erro');
+            return;
+        }
+
+        if (usuario.isAdmin === true || usuario.role === 'admin') {
+            mostrarMensagemAdmin('Este usuário já é um admin.', 'erro');
+            return;
+        }
+
+        promoverAAdmin(usuario);
+        mostrarMensagemAdmin(`${usuario.nome || 'Usuário'} promovido a admin com sucesso!`);
+        carteiraInput.value = '';
+        await renderizarListaAdmins();
+    });
+}
+
+if (listaAdminsPanel) {
+    listaAdminsPanel.addEventListener('click', async (event) => {
+        const botao = event.target.closest('.btn-remover-admin');
+        if (!botao) return;
+
+        const carteira = botao.getAttribute('data-carteira');
+        const confirmar = confirm('Tem certeza que deseja remover os privilégios de admin deste usuário?');
+        
+        if (confirmar) {
+            if (removerAdminPrivilegio(carteira)) {
+                mostrarMensagemAdmin('Privilégios de admin removidos com sucesso!');
+                await renderizarListaAdmins();
+            } else {
+                mostrarMensagemAdmin('Erro ao remover privilégios de admin.', 'erro');
             }
         }
     });

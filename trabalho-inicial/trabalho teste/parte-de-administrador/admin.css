@@ -303,6 +303,99 @@ body {
     color: white;
 }
 
+.admins-panel {
+    margin-top: 20px;
+    text-align: left;
+    background: #fdfbf7;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e6d5c3;
+}
+
+.admins-panel.hidden {
+    display: none;
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    color: #5c3a21;
+}
+
+.admin-form input {
+    padding: 10px;
+    border: 1px solid #d8c3a8;
+    border-radius: 6px;
+    font: inherit;
+}
+
+.admin-form button {
+    text-decoration: none;
+    background: #8B5A2B;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    align-self: flex-start;
+}
+
+.admin-form button:hover {
+    background: #6d4620;
+}
+
+.lista-admins {
+    margin-top: 24px;
+}
+
+.item-admin {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e6d5c3;
+    gap: 10px;
+}
+
+.item-admin strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.item-admin .info {
+    flex-grow: 1;
+}
+
+.item-admin .acoes {
+    display: flex;
+    gap: 8px;
+}
+
+.item-admin button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.item-admin .btn-remover-admin {
+    background: #b33a3a;
+    color: white;
+}
+
+.item-admin .btn-remover-admin:hover {
+    background: #8b2828;
+}
+
 footer {
     text-align: center;
     padding: 15px;

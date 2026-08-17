@@ -37,7 +37,7 @@
                 <div class="admin-actions">
                     <button type="button" id="btnGerenciarLivros" class="admin-action-btn">Gerenciar Livros</button>
                     <a href="./reservas.html">Reservas Pendentes</a>
-                    <a href="#">Usuários</a>
+                    <button type="button" id="btnGerenciarAdmins" class="admin-action-btn">Gerenciar Admins</button>
                 </div>
 
                 <div id="livrosPanel" class="livros-panel hidden">
@@ -84,6 +84,24 @@
                 <div class="lista-livros">
                     <h3>Livros cadastrados</h3>
                     <div id="listaLivrosAdmin"></div>
+                </div>
+            </div>
+
+            <div id="adminsPanel" class="admins-panel hidden">
+                <h2>Gerenciar Admins</h2>
+                <form id="formPromoverAdmin" class="admin-form">
+                    <label>
+                        Número da Carteira do Usuário
+                        <input type="text" id="carteiraInput" placeholder="Ex: 12345" required>
+                    </label>
+                    <button type="submit" id="btnPromoverAdmin">Promover a Admin</button>
+                </form>
+
+                <div id="mensagemAdminStatus" class="mensagem-status" aria-live="polite"></div>
+
+                <div class="lista-admins">
+                    <h3>Admins cadastrados</h3>
+                    <div id="listaAdminsPanel"></div>
                 </div>
             </div>
             </div>
