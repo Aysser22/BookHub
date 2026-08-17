@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "admin-001",
+    "nome": "Administrador",
+    "numero_carteira": "0001",
+    "email": "admin@bookhub.com",
+    "senha": "admin123",
+    "isAdmin": true,
+    "role": "admin",
+    "criadoEm": "2026-08-17T17:00:00Z"
+  },
+  {
+    "id": "user-608f61",
+    "nome": "MetaMask",
+    "numero_carteira": "608f61",
+    "wallet": "0x1ff8...608f61",
+    "email": "",
+    "senha": "",
+    "isAdmin": true,
+    "role": "admin",
+    "criadoEm": "2026-08-17T17:58:00Z"
+  }
+]
