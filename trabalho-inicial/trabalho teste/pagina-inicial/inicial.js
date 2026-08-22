@@ -122,7 +122,22 @@ function carregarUsuarioLogado() {
         if (!usuario?.id) return null;
 
         const usuarios = lerUsuarios();
-        const usuarioAtual = usuarios.find((item) => item.id === usuario.id);
+        const sessId = String(usuario.id || '').toLowerCase();
+        const sessWallet = String(usuario.walletAddress || usuario.wallet || '').toLowerCase();
+        const sessNum = String(usuario.numero_carteira || '').trim();
+
+        const usuarioAtual = usuarios.find((item) => {
+            const idMatch = String(item.id || '').toLowerCase() === sessId && sessId;
+            const walletMatch = String(item.walletAddress || item.wallet || '').toLowerCase() === sessWallet && sessWallet;
+            const numMatch = String(item.numero_carteira || '').trim() === sessNum && sessNum;
+            return idMatch || walletMatch || numMatch;
+        });
+
+        // if found, update session to the canonical user object
+        if (usuarioAtual) {
+            try { localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuarioAtual)); } catch (e) { /* ignore */ }
+        }
+
         return usuarioAtual || usuario;
     } catch (error) {
         return null;
