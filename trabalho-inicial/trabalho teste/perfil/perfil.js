@@ -348,6 +348,19 @@ async function atualizarPerfil() {
     const usuarioAtual = usuarios.find((item) => item.id === usuario.id) || usuario;
 
     document.getElementById('nomeUsuario').textContent = usuarioAtual.nome || usuarioAtual.email;
+
+    // Mostrar badge de admin quando aplicável
+    const adminBadge = document.getElementById('adminBadge');
+    try {
+        const ehAdmin = usuarioEhAdmin(usuarioAtual);
+        if (adminBadge) {
+            if (ehAdmin) adminBadge.classList.remove('hidden');
+            else adminBadge.classList.add('hidden');
+        }
+    } catch (e) {
+        if (adminBadge) adminBadge.classList.add('hidden');
+    }
+
     const anoEscolar = usuarioAtual.ano || '3º Ano';
     const turmaAluno = usuarioAtual.turma || 'A';
     document.getElementById('infoUsuario').textContent = `${usuarioAtual.perfil || 'Aluno'} | ${anoEscolar} - Turma ${turmaAluno}`;

@@ -96,6 +96,22 @@ main.container {
     margin-bottom: 10px;
 }
 
+/* Badge to indicate administrator users */
+.admin-badge {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #e9b872 0%, #b3732f 100%);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    box-shadow: 0 6px 14px rgba(139,90,43,0.12);
+}
+
+.hidden { display: none !important; }
+
 .profile-details p {
     color: #6a4a33;
     font-size: 1rem;
