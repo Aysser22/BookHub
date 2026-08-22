@@ -383,10 +383,46 @@ async function atualizarPerfil() {
     // Mostrar badge de admin quando aplicável
     const adminBadge = document.getElementById('adminBadge');
     try {
-        const ehAdmin = usuarioEhAdmin(usuarioAtual);
+        let ehAdmin = usuarioEhAdmin(usuarioAtual);
         if (adminBadge) {
             if (ehAdmin) adminBadge.classList.remove('hidden');
             else adminBadge.classList.add('hidden');
+        }
+
+        // Fallback: se não for reconhecido como admin, tentar carregar o users.json localmente
+        // e procurar por um registro que tenha walletAddress/wallet igual ao endereço da sessão.
+        if (!ehAdmin) {
+            (async () => {
+                try {
+                    const sess = JSON.parse(localStorage.getItem(STORAGE_KEY_SESSION) || 'null');
+                    const sessWallet = (String(sess?.walletAddress || sess?.wallet || '')).toLowerCase();
+                    if (!sessWallet) return;
+
+                    const res = await fetch('../parte-de-administrador/banco-de-dados/users.json', { cache: 'no-store' });
+                    if (!res.ok) return;
+                    const localUsers = await res.json();
+                    if (!Array.isArray(localUsers)) return;
+
+                    const match = localUsers.find(u => (String(u.walletAddress || u.wallet || '')).toLowerCase() === sessWallet || String(u.id || '').toLowerCase() === String(sess.id || '').toLowerCase() || String(u.numero_carteira || '').trim() === String(sess.numero_carteira || '').trim());
+                    if (match) {
+                        // atualizar bookhub-users e a sessão canônica
+                        try { localStorage.setItem('bookhub-users', JSON.stringify(localUsers)); } catch (e) {}
+                        const updated = { ...match, isAdmin: true, role: 'admin' };
+                        try { localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(updated)); } catch (e) {}
+
+                        // atualizar badge na UI
+                        if (adminBadge) adminBadge.classList.remove('hidden');
+
+                        // também atualizar variáveis locais para o restante do fluxo
+                        // (não recarregar toda a página para evitar perder estado do usuário)
+                        // atualizar campos exibidos
+                        document.getElementById('nomeUsuario').textContent = updated.nome || updated.email;
+                        document.getElementById('infoUsuario').textContent = `${updated.perfil || 'Administrador'} | ${updated.ano || '3º Ano'} - Turma ${updated.turma || 'A'}`;
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            })();
         }
     } catch (e) {
         if (adminBadge) adminBadge.classList.add('hidden');
