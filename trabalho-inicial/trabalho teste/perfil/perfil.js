@@ -378,7 +378,8 @@ async function atualizarPerfil() {
         try { localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuarioAtual)); } catch (e) { /* ignore */ }
     }
 
-    document.getElementById('nomeUsuario').textContent = usuarioAtual.nome || usuarioAtual.email;
+    const nomeEl = document.getElementById('nomeUsuarioText');
+    if (nomeEl) nomeEl.textContent = usuarioAtual.nome || usuarioAtual.email;
 
     // Mostrar badge de admin quando aplicável
     const adminBadge = document.getElementById('adminBadge');
@@ -416,7 +417,8 @@ async function atualizarPerfil() {
                         // também atualizar variáveis locais para o restante do fluxo
                         // (não recarregar toda a página para evitar perder estado do usuário)
                         // atualizar campos exibidos
-                        document.getElementById('nomeUsuario').textContent = updated.nome || updated.email;
+                        const nomeElUpdated = document.getElementById('nomeUsuarioText');
+                        if (nomeElUpdated) nomeElUpdated.textContent = updated.nome || updated.email;
                         document.getElementById('infoUsuario').textContent = `${updated.perfil || 'Administrador'} | ${updated.ano || '3º Ano'} - Turma ${updated.turma || 'A'}`;
                     }
                 } catch (e) {
