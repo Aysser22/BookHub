@@ -344,8 +344,25 @@ async function atualizarPerfil() {
         }
     }
 
-    const usuarios = lerUsuarios();
-    const usuarioAtual = usuarios.find((item) => item.id === usuario.id) || usuario;
+    let usuarios = lerUsuarios();
+
+    // Se não houver usuários carregados, tentar carregar o arquivo local estático
+    if ((!Array.isArray(usuarios) || usuarios.length === 0) && window.location.protocol !== 'file:') {
+        try {
+            const res = await fetch('../parte-de-administrador/banco-de-dados/users.json', { cache: 'no-store' });
+            if (res.ok) {
+                const localUsers = await res.json();
+                if (Array.isArray(localUsers) && localUsers.length > 0) {
+                    salvarUsuarios(localUsers);
+                    usuarios = localUsers;
+                }
+            }
+        } catch (err) {
+            // ignore
+        }
+    }
+
+    const usuarioAtual = usuarios.find((item) => item.id === usuario.id || String(item.numero_carteira) === String(usuario.numero_carteira)) || usuario;
 
     document.getElementById('nomeUsuario').textContent = usuarioAtual.nome || usuarioAtual.email;
 
