@@ -7,11 +7,36 @@ const totalAceitas = document.getElementById('totalAceitas');
 const totalRejeitadas = document.getElementById('totalRejeitadas');
 
 const STORAGE_KEY_SESSION = 'bookhub-session';
+const STORAGE_KEY_USERS = 'bookhub-users';
 const STORAGE_KEY_RESERVAS = 'bookhub-reservas';
 const STORAGE_KEY_ADMIN_SESSION = 'bookhub-admin-session';
 const STORAGE_KEY_ADMIN_USER = 'bookhub-admin-user';
 const API_BASE = 'http://localhost:3000';
 const API_URL_RESERVAS = `${API_BASE}/api/reservas`;
+
+function lerUsuariosLocais() {
+    try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_USERS) || '[]');
+    } catch (e) {
+        return [];
+    }
+}
+
+function carregarUsuarioLogado() {
+    try {
+        const userData = localStorage.getItem(STORAGE_KEY_SESSION);
+        if (!userData) return null;
+
+        const usuario = JSON.parse(userData);
+        if (!usuario?.id && !usuario?.numero_carteira) return usuario;
+
+        const usuarios = lerUsuariosLocais();
+        const usuarioAtual = usuarios.find(u => u.id === usuario.id || String(u.numero_carteira) === String(usuario.numero_carteira));
+        return usuarioAtual || usuario;
+    } catch (e) {
+        return null;
+    }
+}
 
 let todasAsReservas = [];
 
@@ -24,7 +49,8 @@ function atualizarBotaoLogin() {
     const link = document.querySelector('.btn-login');
     if (!link) return;
 
-    const possuiSessao = Boolean(localStorage.getItem(STORAGE_KEY_SESSION));
+    const usuario = carregarUsuarioLogado();
+    const possuiSessao = Boolean(usuario);
 
     if (possuiSessao) {
         link.textContent = 'Sair da conta';

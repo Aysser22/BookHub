@@ -118,7 +118,13 @@ function carregarUsuarioLogado() {
     try {
         const userData = localStorage.getItem(STORAGE_KEY_SESSION);
         if (!userData) return null;
-        return JSON.parse(userData);
+
+        const usuario = JSON.parse(userData);
+        if (!usuario?.id && !usuario?.numero_carteira) return usuario;
+
+        const usuarios = lerUsuariosLocais();
+        const usuarioAtual = usuarios.find((item) => item.id === usuario.id || String(item.numero_carteira) === String(usuario.numero_carteira));
+        return usuarioAtual || usuario;
     } catch (error) {
         return null;
     }
@@ -489,12 +495,26 @@ function buscarUsuarioPorCarteira(carteira) {
 
 function promoverAAdmin(usuario) {
     const usuarios = lerUsuariosLocais();
-    const index = usuarios.findIndex(u => u.numero_carteira === usuario.numero_carteira);
+    const index = usuarios.findIndex(u => String(u.numero_carteira || '').trim() === String(usuario.numero_carteira || '').trim());
     
     if (index !== -1) {
         usuarios[index].isAdmin = true;
         usuarios[index].role = 'admin';
         salvarUsuariosLocais(usuarios);
+
+        // Se o usuário promovido for o mesmo que está na sessão atual, atualizar a sessão
+        try {
+            const sessRaw = localStorage.getItem(STORAGE_KEY_SESSION);
+            if (sessRaw) {
+                const sess = JSON.parse(sessRaw);
+                if (sess && (sess.id === usuarios[index].id || String(sess.numero_carteira || '').trim() === String(usuarios[index].numero_carteira || '').trim())) {
+                    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuarios[index]));
+                }
+            }
+        } catch (e) {
+            console.warn('Não foi possível atualizar a sessão após promoção de admin.', e);
+        }
+
         return true;
     }
     return false;
@@ -510,6 +530,20 @@ function removerAdminPrivilegio(carteira) {
         usuarios[index].isAdmin = false;
         usuarios[index].role = 'usuario';
         salvarUsuariosLocais(usuarios);
+
+        // Atualizar a sessão se for o mesmo usuário
+        try {
+            const sessRaw = localStorage.getItem(STORAGE_KEY_SESSION);
+            if (sessRaw) {
+                const sess = JSON.parse(sessRaw);
+                if (sess && (sess.id === usuarios[index].id || String(sess.numero_carteira || '').trim() === String(usuarios[index].numero_carteira || '').trim())) {
+                    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(usuarios[index]));
+                }
+            }
+        } catch (e) {
+            console.warn('Não foi possível atualizar a sessão após remoção de privilégio de admin.', e);
+        }
+
         return true;
     }
     return false;

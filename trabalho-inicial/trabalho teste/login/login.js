@@ -46,6 +46,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const users = await res.json();
                 if (Array.isArray(users)) {
                     salvarUsuarios(users);
+
+                    // Se houver uma sessão ativa, atualizá-la com os dados mais recentes
+                    try {
+                        const sessRaw = localStorage.getItem(STORAGE_KEY_SESSION);
+                        if (sessRaw) {
+                            const sess = JSON.parse(sessRaw);
+                            const encontrado = users.find(u => u.id === sess.id || String(u.numero_carteira) === String(sess.numero_carteira));
+                            if (encontrado) {
+                                salvarSessaoUsuario(encontrado);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Não foi possível sincronizar sessão com usuários carregados.', e);
+                    }
                 }
             }
         } catch (err) {

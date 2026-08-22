@@ -106,7 +106,18 @@
         function carregarUsuarioLogado() {
             try {
                 const userData = localStorage.getItem(STORAGE_KEY_SESSION);
-                return userData ? JSON.parse(userData) : null;
+                if (!userData) return null;
+
+                const usuario = JSON.parse(userData);
+                if (!usuario?.id && !usuario?.numero_carteira) return usuario;
+
+                try {
+                    const usuarios = JSON.parse(localStorage.getItem('bookhub-users') || '[]');
+                    const usuarioAtual = usuarios.find(u => u.id === usuario.id || String(u.numero_carteira) === String(usuario.numero_carteira));
+                    return usuarioAtual || usuario;
+                } catch (e) {
+                    return usuario;
+                }
             } catch (e) {
                 return null;
             }

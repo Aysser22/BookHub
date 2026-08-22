@@ -106,16 +106,14 @@ function carregarUsuarioLogado() {
     try {
         const userData = localStorage.getItem(STORAGE_KEY_SESSION);
         if (!userData) return null;
-        
+
         const usuario = typeof userData === 'string' ? JSON.parse(userData) : userData;
-        
-        // Validar que temos os dados necessários
-        if (!usuario.id) {
-            console.error('Usuário sem ID válido:', usuario);
-            return null;
-        }
-        
-        return usuario;
+        // Se não houver identificador conhecido, retorna o objeto como estava
+        if (!usuario?.id && !usuario?.numero_carteira) return usuario;
+
+        const usuarios = lerUsuarios();
+        const usuarioAtual = usuarios.find((item) => item.id === usuario.id || String(item.numero_carteira) === String(usuario.numero_carteira));
+        return usuarioAtual || usuario;
     } catch (error) {
         console.error('Erro ao carregar usuário logado:', error);
         return null;
