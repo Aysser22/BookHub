@@ -19,5 +19,16 @@
     "isAdmin": true,
     "role": "admin",
     "criadoEm": "2026-08-17T17:58:00Z"
+  },
+  {
+    "id": "user-760fa0",
+    "nome": "MetaMask",
+    "numero_carteira": "760fa0",
+    "wallet": "0x91d2...760fa0",
+    "email": "",
+    "senha": "",
+    "isAdmin": true,
+    "role": "admin",
+    "criadoEm": "2026-08-22T19:29:00Z"
   }
 ]

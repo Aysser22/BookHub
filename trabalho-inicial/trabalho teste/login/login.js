@@ -63,7 +63,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
         } catch (err) {
-            // fallback: use localStorage
+            // fallback: try loading local banco-de-dados/users.json (static file)
+            try {
+                const localRes = await fetch('../parte-de-administrador/banco-de-dados/users.json');
+                if (localRes.ok) {
+                    const localUsers = await localRes.json();
+                    if (Array.isArray(localUsers)) {
+                        salvarUsuarios(localUsers);
+
+                        // synchronize session if present
+                        try {
+                            const sessRaw = localStorage.getItem(STORAGE_KEY_SESSION);
+                            if (sessRaw) {
+                                const sess = JSON.parse(sessRaw);
+                                const encontrado = localUsers.find(u => u.id === sess.id || String(u.numero_carteira) === String(sess.numero_carteira));
+                                if (encontrado) salvarSessaoUsuario(encontrado);
+                            }
+                        } catch (e) {
+                            console.warn('Não foi possível sincronizar sessão com usuários locais.', e);
+                        }
+                    }
+                }
+            } catch (e) {
+                // ignore
+            }
         }
     }
 });
