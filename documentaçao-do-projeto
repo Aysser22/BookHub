@@ -1,0 +1,131 @@
+Documentação do Projeto — BookHub
+
+Resumo do projeto
+-----------------
+BookHub é uma plataforma web para gestão de bibliotecas escolares que reúne catálogo de livros, perfil de usuários, reservas e um painel administrativo para gerenciar o acervo e privilégios. O projeto é construído como um site estático com scripts JavaScript que usam localStorage como armazenamento local e (opcionalmente) tentam sincronizar com uma API REST em http://localhost:3000.
+
+Como o projeto foi criado
+------------------------
+- Estrutura inicial: páginas HTML separadas para catálogo, login, perfil e administração.
+- Armazenamento local: uso intensivo de localStorage para livros, usuários, sessões e reservas.
+- Design: HTML/CSS com layout responsivo e componentes reutilizáveis (cartões, tabelas, toasts).
+- Suporte a autenticação por carteira (MetaMask / Phantom) para criar/associar contas.
+
+Principais funcionalidades
+-------------------------
+- Catálogo de livros com CRUD (quando API disponível) e fallback para armazenamento local.
+- Login por carteira (MetaMask / Phantom) que cria/obtém conta localmente e persiste sessão em localStorage (chave: bookhub-session).
+- Perfil do usuário com estatísticas, histórico, reservas e um selo visual "ADMIN" quando o usuário tem privilégios administrativos.
+- Painel administrativo (admin.html) que permite gerenciar livros, admins e processar reservas.
+- Sistema simples de permissões baseado em campos do usuário: isAdmin, role, perfil, tags e numero_carteira.
+
+Alterações importantes realizadas (histórico das mudanças)
+---------------------------------------------------------
+Durante o trabalho recente foram aplicadas várias correções e melhorias para garantir que a detecção de administradores funcione corretamente e que a UI mostre um selo visual quando apropriado. As mudanças relevantes incluem:
+
+Arquivos atualizados / adicionados
+- trabalho-inicial/trabalho teste/parte-de-administrador/admin.js
+  - carregarUsuarioLogado agora busca a versão canônica do usuário em bookhub-users (por id ou numero_carteira/wallet) e atualiza a sessão armazenada quando encontra correspondência.
+  - promoverAAdmin e removerAdminPrivilegio agora atualizam também a sessão (bookhub-session) quando o usuário modificado for o usuário logado.
+
+- trabalho-inicial/trabalho teste/perfil/perfil.js
+  - carregarUsuarioLogado atualizado para mesclar/atualizar a sessão com os usuários armazenados localmente.
+  - adicionada lógica para exibir um selo visual "ADMIN" no cartão de perfil quando o usuário for admin.
+  - fallback para carregar o arquivo local banco-de-dados/users.json caso a API não esteja disponível, procurando correspondência por walletAddress / wallet / numero_carteira / id.
+  - preservação do selo ao separar o nó de texto do nome (nomeUsuarioText) para evitar sobrescrever o badge.
+
+- trabalho-inicial/trabalho teste/perfil/perfil.html e perfil.css
+  - inserido <span id="adminBadge">ADMIN</span> e estilos correspondentes para o selo.
+  - ajuste no HTML para preservar o selo quando o nome for atualizado por script.
+
+- trabalho-inicial/trabalho teste/parte-de-administrador/reservas.js
+  - adicionar funções de carregamento de usuários locais e melhorar carregarUsuarioLogado com correspondência por id/wallet/numero_carteira.
+  - atualizarBotaoLogin agora usa carregarUsuarioLogado para decidir o estado do botão.
+
+- trabalho-inicial/trabalho teste/pagina-inicial/inicial.js
+  - melhorar carregarUsuarioLogado para corresponder sessão e usuário canônico por id/wallet/numero_carteira e atualizar a sessão quando apropriado.
+
+- trabalho-inicial/trabalho teste/login/login.js
+  - ao buscar usuários via API, sincroniza a sessão atual com os dados atualizados (se houver correspondência).
+  - quando a API falha, tenta carregar um arquivo local estático ../parte-de-administrador/banco-de-dados/users.json e grava em localStorage para fallback (bookhub-users).
+
+- trabalho-inicial/trabalho teste/parte-de-administrador/banco-de-dados/users.json
+  - adicionado registro de admin com walletAddress correspondente ao endereço de desenvolvimento (entrada user-760fa0) para facilitar testes locais.
+
+- trabalho-inicial/trabalho teste/DEBUG_RESERVAS.html
+  - atualizar carregarUsuarioLogado para tentar mesclar sessão com bookhub-users local.
+
+Motivação das mudanças
+----------------------
+- Corrigir inconsistências entre a sessão armazenada (bookhub-session) e o cadastro canônico de usuários (bookhub-users), especialmente quando a sessão contém o endereço completo da carteira (0x...) e o cadastro local referenciava apenas um número de carteira curto.
+- Fazer com que mudanças no cadastro (promoção a admin, remoção de privilégios) sejam refletidas imediatamente na sessão do usuário sem exigir logout/login manual.
+- Tornar mais fácil identificar administradores na UI adicionando um selo visual no perfil.
+- Garantir que a aplicação funcione em modo off-line / sem API (carregando um arquivo JSON local como fallback) para desenvolvimento e testes.
+
+Como rodar o projeto localmente
+-------------------------------
+Pré-requisitos
+- Máquina com Python 3 (para servidor estático simples) ou qualquer servidor estático (live-server, http-server, etc.).
+- Navegador moderno (Chrome, Firefox, Edge) com MetaMask/Phantom se for testar login por carteira.
+
+Instruções rápidas (servidor estático com Python):
+1. No terminal, na raiz do repositório, execute:
+   python3 -m http.server 8000 --bind 127.0.0.1
+2. Abra no navegador: http://localhost:8000
+3. Páginas úteis:
+   - Página inicial / catálogo: /trabalho-inicial/trabalho teste/pagina-inicial/inicial.html
+   - Login / conectar carteira: /trabalho-inicial/trabalho teste/login/login.html
+   - Perfil do usuário: /trabalho-inicial/trabalho teste/perfil/perfil.html
+   - Painel administrativo: /trabalho-inicial/trabalho teste/parte-de-administrador/admin.html
+
+Observações
+- A aplicação tenta acessar uma API em http://localhost:3000 para sincronizar dados. Caso a API não exista, a aplicação usa localStorage e também carrega um arquivo estático (banco-de-dados/users.json) como fallback onde aplicável.
+- Para testes de admin locais, há um arquivo de dados local em trabalho-inicial/trabalho teste/parte-de-administrador/banco-de-dados/users.json com alguns usuários de exemplo (incluindo um admin de teste).
+
+Mapeamento de arquivos importantes
+---------------------------------
+- trabalho-inicial/trabalho teste/pagina-inicial/inicial.html (+ inicial.js): página pública / catálogo.
+- trabalho-inicial/trabalho teste/login/login.html (+ login.js): fluxo de autenticação por carteira (MetaMask / Phantom) e criação de sessão local.
+- trabalho-inicial/trabalho teste/perfil/perfil.html (+ perfil.js / perfil.css): área do usuário com perfil, estatísticas, histórico, reservas e badge de admin.
+- trabalho-inicial/trabalho teste/parte-de-administrador/admin.html (+ admin.js): painel administrativo (acesso controlado pelo usuário ser admin).
+- trabalho-inicial/trabalho teste/parte-de-administrador/reservas.js: área para processar reservas pelo admin.
+- trabalho-inicial/trabalho teste/parte-de-administrador/banco-de-dados/users.json: dados de usuários de exemplo (fallback local).
+- index.html: página raiz do projeto (possível landing).
+
+Segurança e limitações
+----------------------
+- O mecanismo atual de "admin" é puramente baseado em dados no cliente (localStorage / arquivo JSON). Isso é apenas adequado para desenvolvimento e demonstração. Em produção, é obrigatório ter um backend seguro que autentique e autorize ações administrativas.
+- Não armazene segredos, senhas ou chaves privadas em localStorage. O projeto atual usa login via carteira (wallet connect), portanto não deve armazenar chaves privadas — apenas endereços públicos.
+- Quando migrar para produção, implementar autenticação baseada em tokens e validação de permissões no servidor.
+
+Testes e verificação
+--------------------
+- Testar o fluxo de login por carteira (MetaMask / Phantom). Verificar bookhub-session em Application → Local Storage.
+- Promover um usuário a admin via Painel Admin e verificar que bookhub-session é atualizado e o badge aparece no perfil.
+- Simular ausência da API e confirmar que a aplicação carrega dados do arquivo banco-de-dados/users.json e que a detecção de admin funciona.
+
+Sugestões / próximos passos
+-------------------------
+- Mover regras de autorização para o backend e manter apenas a UI no cliente.
+- Adicionar testes automatizados (unitários / E2E com Cypress ou Playwright).
+- Padronizar o formato dos objetos de usuário (usar sempre walletAddress + id + numero_carteira) e documentar o contrato da API.
+- Melhorar UX do painel admin: confirmação de ações, logs de auditoria, notificações reais por e-mail.
+
+Como contribuir
+---------------
+- Faça um fork / clone do repositório.
+- Crie uma branch para sua feature/bugfix: git checkout -b minha-feature.
+- Faça commits pequenos e descritivos. Use o padrão existente para mensagens.
+- Abra um Pull Request com descrição das mudanças e instruções de teste.
+
+Licença
+-------
+- Nenhuma licença explícita foi incluída no repositório. Antes de publicar, defina uma licença apropriada (MIT, Apache-2.0, etc.).
+
+Contato
+-------
+- Para dúvidas sobre o código, abra uma issue no repositório ou entre em contato com os mantenedores do projeto.
+
+---
+
+Arquivo criado automaticamente com base nas mudanças recentes feitas no repositório pelo assistente de desenvolvimento (Copilot CLI runtime). Se quiser que este arquivo seja salvo com extensão .md, ou dentro de uma pasta docs/, diga qual nome prefere e eu movo/renomeio o arquivo e commito a mudança.
